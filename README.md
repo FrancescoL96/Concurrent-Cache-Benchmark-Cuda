@@ -1,4 +1,5 @@
-# Concurrent-Cache-Benchmark-Cuda
+# Concurrent Cache Benchmark Cuda
+Computes an array with CPU and GPU, without race conditions. The computation will be much faster on Zero Copy when using the Jetson Xavier.
 ## Usage
 Simply compile by running the compile script (currently configured for Volta/Xavier) on a Jetson Board:
 ```
