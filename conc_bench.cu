@@ -36,9 +36,9 @@ using namespace timer;
 
 unsigned int N = 2;
 const int POW = 27;			 // Maximum is 30, anything higher and the system will use swap, making the Cuda kernels crash
-const int RUNS = 50;
-const int SUMS = 10;
-const int BLOCK_SIZE_X = 1024;
+const int RUNS = 50;		// How many times the benchmark is run
+const int SUMS = 10;		// As CPU and GPU work on either the left side or right side, this number indicates how many "side swaps" there will be
+const int BLOCK_SIZE_X = 1024; // Cuda Block Size
 
 
 __global__
