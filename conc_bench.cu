@@ -21,10 +21,10 @@ using namespace timer;
 #define FROM_debug 0
 #define TO_debug 16
 
-// Set ZEROCOPY to 1 to use Zero Copy Memory Mode, UNIFIED to 1 to use Unified Memory, COPY to 1 to use Copy
-#define ZEROCOPY 1
+// Set ZEROCOPY to 1 to use Zero Copy Memory Mode, UNIFIED to 1 to use Unified Memory, COPY to 1 to use Copy (only one of them can be 1, others must be 0)
+#define ZEROCOPY 0
 #define UNIFIED 0
-#define COPY 0
+#define COPY 1
 
 // Set RESULTCHECK to 1 to verify the result with a single CPU thread
 #define RESULTCHECK 1
@@ -35,8 +35,8 @@ using namespace timer;
 #define OPENMP 1
 
 unsigned int N = 2;
-const int POW = 27;			 // Maximum is 30, anything higher and the system will use swap, making the Cuda kernels crash
-const int RUNS = 50;		// How many times the benchmark is run
+const int POW = 23;			 // Maximum is 30, anything higher and the system will use swap, making the Cuda kernels crash
+const int RUNS = 1;		// How many times the benchmark is run
 const int SUMS = 10;		// As CPU and GPU work on either the left side or right side, this number indicates how many "side swaps" there will be
 const int BLOCK_SIZE_X = 1024; // Cuda Block Size
 
@@ -68,6 +68,36 @@ void sum_gpu_right(float* matrix, const int N) {
 		    	temp *= 1.6;
 		    }
 			matrix[row] = temp;
+		}
+	}
+}
+
+void sum_cpu_right(float * d_matrix, const int N){
+	#if OPENMP
+	#pragma omp parallel for
+	#endif
+	for (int j = N/2; j < N; j++) {
+		if (j % 2 == 0) {
+			//__sync_fetch_and_add(&d_matrix[j], 1);
+			for (int r = 0; r < 2; r++) {
+				d_matrix[j] = sqrt(d_matrix[j]*(d_matrix[j] / 2.3));
+			}
+			//printf("cpu right: %d\n", j);
+		}
+	}
+}
+
+void sum_cpu_left(float * d_matrix, const int N){
+	#if OPENMP
+	#pragma omp parallel for
+	#endif
+	for (int j = 0; j < N/2; j++) {
+		if (j % 2 != 0) {
+			//__sync_fetch_and_add(&d_matrix[j], 1);
+			for (int r = 0; r < 2; r++) {
+				d_matrix[j] = sqrt(d_matrix[j]*(d_matrix[j] / 2.3));
+			}
+			//printf("cpu left: %d\n", j);
 		}
 	}
 }
@@ -272,18 +302,7 @@ int main() {
 		        CHECK_CUDA_ERROR
 		        #endif
 		        TM_host.start();
-		        #if OPENMP
-				#pragma omp parallel for
-				#endif
-				for (int j = N/2; j < N; j++) {
-					if (j % 2 == 0) {
-						//__sync_fetch_and_add(&d_matrix[j], 1);
-						for (int r = 0; r < 2; r++) {
-							d_matrix[j] = sqrt(d_matrix[j]*(d_matrix[j] / 2.3));
-						}
-						//printf("cpu right: %d\n", j);
-					}
-				}
+		        sum_cpu_right(d_matrix, N);
 		        TM_host.stop();
 			} else {				
 				#if COPY
@@ -298,18 +317,7 @@ int main() {
    		        CHECK_CUDA_ERROR
    		        #endif
    		        TM_host.start();
-	   	        #if OPENMP
-				#pragma omp parallel for
-				#endif
-				for (int j = 0; j < N/2; j++) {
-					if (j % 2 != 0) {
-						//__sync_fetch_and_add(&d_matrix[j], 1);
-						for (int r = 0; r < 2; r++) {
-							d_matrix[j] = sqrt(d_matrix[j]*(d_matrix[j] / 2.3));
-						}
-						//printf("cpu left: %d\n", j);
-					}
-				}
+	   	        sum_cpu_left(d_matrix, N);
 				TM_host.stop();
 			}
 			// Synchronization needed to avoid race conditions (after the CPU and GPU have done their sides, we need to sync)
