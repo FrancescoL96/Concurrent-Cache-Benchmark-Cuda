@@ -144,7 +144,7 @@ set(MSG_FILES
 )
 
 set(SRV_FILES
-  
+  "srv/ConcArray.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME} 
@@ -174,6 +174,24 @@ rosidl_target_interfaces(${NODE_MATRIX_SUPPLIER}
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # ------------------------------------------------------------------------------
+# NODE: matrix_supplier_rpc
+set(NODE_MATRIX_SUPPLIER_RPC matrix_supplier_rpc)
+set(NODE_MATRIX_SUPPLIER_RPC_SRC
+  src/matrix_supplier_rpc.cpp
+)
+
+add_executable(${NODE_MATRIX_SUPPLIER_RPC} ${NODE_MATRIX_SUPPLIER_RPC_SRC})
+ament_target_dependencies(${NODE_MATRIX_SUPPLIER_RPC} 
+  ${DEPENDENCIES}
+)
+
+#target_include_directories(${NODE_MATRIX_SUPPLIER_RPC} PUBLIC ${CUDA_LIB})
+target_link_libraries(${NODE_MATRIX_SUPPLIER_RPC} ${CUDA_LIB})
+
+rosidl_target_interfaces(${NODE_MATRIX_SUPPLIER_RPC}
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+# ------------------------------------------------------------------------------
 # NODE: gpu_exec
 set(NODE_GPU_EXEC gpu_exec)
 set(NODE_GPU_EXEC_SRC
@@ -187,6 +205,22 @@ ament_target_dependencies(${NODE_GPU_EXEC} ${DEPENDENCIES})
 target_link_libraries(${NODE_GPU_EXEC} ${CUDA_LIB})
 
 rosidl_target_interfaces(${NODE_GPU_EXEC}
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+# ------------------------------------------------------------------------------
+# NODE: gpu_exec_rpc
+set(NODE_GPU_EXEC_RPC gpu_exec_rpc)
+set(NODE_GPU_EXEC_RPC_SRC
+  src/gpu_exec_rpc.cpp
+)
+
+add_executable(${NODE_GPU_EXEC_RPC} ${NODE_GPU_EXEC_RPC_SRC})
+ament_target_dependencies(${NODE_GPU_EXEC_RPC} ${DEPENDENCIES})
+
+#target_include_directories(${NODE_GPU_EXEC} PUBLIC ${CUDA_LIB})
+target_link_libraries(${NODE_GPU_EXEC_RPC} ${CUDA_LIB})
+
+rosidl_target_interfaces(${NODE_GPU_EXEC_RPC}
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # ------------------------------------------------------------------------------
@@ -206,12 +240,31 @@ rosidl_target_interfaces(${NODE_CPU_EXEC}
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # ------------------------------------------------------------------------------
+# NODE: cpu_exec_rpc
+set(NODE_CPU_EXEC_RPC cpu_exec_rpc)
+set(NODE_CPU_EXEC_RPC_SRC
+  src/cpu_exec_rpc.cpp
+)
+
+add_executable(${NODE_CPU_EXEC_RPC} ${NODE_CPU_EXEC_RPC_SRC})
+ament_target_dependencies(${NODE_CPU_EXEC_RPC} ${DEPENDENCIES})
+
+#target_include_directories(${NODE_CPU_EXEC_RPC} PUBLIC ${CUDA_LIB})
+target_link_libraries(${NODE_CPU_EXEC_RPC} ${CUDA_LIB})
+
+rosidl_target_interfaces(${NODE_CPU_EXEC_RPC}
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+# ------------------------------------------------------------------------------
 # Install directives.
 
 install(TARGETS
   ${NODE_MATRIX_SUPPLIER}
   ${NODE_GPU_EXEC}
   ${NODE_CPU_EXEC}
+  ${NODE_MATRIX_SUPPLIER_RPC}
+  ${NODE_GPU_EXEC_RPC}
+  ${NODE_CPU_EXEC_RPC}
   DESTINATION lib/${PROJECT_NAME}
 )
 

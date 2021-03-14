@@ -1,0 +1,4 @@
+std_msgs/Float32MultiArray arr
+int64 sum_id
+---
+std_msgs/Float32MultiArray arr
